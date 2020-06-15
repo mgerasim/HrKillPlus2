@@ -39,7 +39,8 @@
     "socket.io": "^2.3.0",
     "start": "^5.1.0",
     "url-search-params-polyfill": "^8.0.0",
-    "ws": "^7.2.1"
+    "ws": "^7.2.1",
+    "minimist": ">=0.2.1"
   },
   "devDependencies": {
     "gulp": "^4.0.2",
