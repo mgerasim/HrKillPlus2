@@ -41,7 +41,7 @@ const killPlusIntegrator = new KillPlusIntegrator();
 const uiscomIntegrator = new UiscomIntegrator();
 
 
-app.use('/notify/records', async (req: any, res: any) => {
+app.use('/hrkillplus/notify/records', async (req: any, res: any) => {
     try {
         Logger.Info('notify/records');
         console.log(req.query);
@@ -88,7 +88,7 @@ app.use('/notify/records', async (req: any, res: any) => {
     }
 })
 
-app.use('/notify/noanswered', async (req: any, res: any) => {
+app.use('/hrkillplus/notify/noanswered', async (req: any, res: any) => {
     Logger.Info('notify/noanswered');
     console.log(req.query);
     const employee_phone_number = req.query.employee_phone_number
@@ -135,7 +135,7 @@ app.use('/notify/noanswered', async (req: any, res: any) => {
 });
 
 
-app.use('/notify/answered', async (req: any, res: any) => {
+app.use('/hrkillplus/notify/answered', async (req: any, res: any) => {
     Logger.Info('notify/answered');
     console.log(req.query);
     const employee_phone_number = req.query.employee_phone_number
@@ -186,7 +186,7 @@ app.use('/notify/answered', async (req: any, res: any) => {
 });
 
 
-app.use('/killplus/events', jsonParser, async (req: any, res: any) => {
+app.use('/hrkillplus/events', jsonParser, async (req: any, res: any) => {
     try {
 
        Logger.Info('events');
