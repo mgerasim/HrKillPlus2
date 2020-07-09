@@ -240,38 +240,42 @@ app.use('/hrkillplus/events', jsonParser, async (req: any, res: any) => {
 
 app.use('/hrkillplus/call', async (req: any, res: any) => {
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
+    try {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
 
-    Logger.Info('post call');
-    console.log(req.query)
-    const staffId = req.query.staff;
-    Logger.Info(staffId);
-    const leadId = req.query.lead;
-    Logger.Info(leadId);
-    const staff = await killPlusIntegrator.getStaffById(staffId);
-    if (staff === undefined) {
-        res.send('staff === undefined');
-        return;
+        Logger.Info('post call');
+        console.log(req.query)
+        const staffId = req.query.staff;
+        Logger.Info(staffId);
+        const leadId = req.query.lead;
+        Logger.Info(leadId);
+        const staff = await killPlusIntegrator.getStaffById(staffId);
+        if (staff === undefined) {
+            res.send('staff === undefined');
+            return;
+        }
+        const lead = await killPlusIntegrator.getLeadById(leadId);
+        if (lead === undefined) {
+            res.send('lead === undefined');
+            return;
+        }
+
+        console.log(staff.phonenumber);
+
+        const employee = await uiscomIntegrator.getEmployee(staff.phonenumber);
+
+        console.log(`Найден сотрудник`);
+        console.log(employee.id);
+
+        const result = await uiscomIntegrator.makeCall(lead.phonenumber, employee.id, staff.phonenumber);
+
+        console.log(result);
+
+        res.send('call successed');
+    } catch (error) {
+        res.status(500).send(error);
     }
-    const lead = await killPlusIntegrator.getLeadById(leadId);
-    if (lead === undefined) {
-        res.send('lead === undefined');
-        return;
-    }
-
-    console.log(staff.phonenumber);
-
-    const employee = await uiscomIntegrator.getEmployee(staff.phonenumber);
-
-    console.log(`Найден сотрудник`);
-    console.log(employee.id);
-
-    const result = await uiscomIntegrator.makeCall(lead.phonenumber, employee.id, staff.phonenumber);
-
-    console.log(result);
-
-    res.send('call successed');
 
     //  Logger.Info(JSON.stringify(call));
     //  webWs.send(`{"phone":${call.phone},"staff":${call.staff}}`);
