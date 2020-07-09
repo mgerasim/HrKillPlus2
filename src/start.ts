@@ -16,13 +16,13 @@ import { MongoClient } from 'mongodb';
 import { UiscomIntegrator } from './integrators/uiscomIntegrator';
 import { Task } from './models/task';
 // const bodyParser = require('body-parser');
- app.use(bodyParser.json());
- // app.use(express.bodyParser());
+app.use(bodyParser.json());
+// app.use(express.bodyParser());
 
 // create application/x-www-form-urlencoded parser
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-const jsonParser = bodyParser.json({ })
+const jsonParser = bodyParser.json({})
 
 app.use('/', express.static('public'));
 
@@ -45,43 +45,43 @@ app.use('/hrkillplus/notify/records', async (req: any, res: any) => {
     try {
         Logger.Info('notify/records');
         console.log(req.query);
-    const employee_phone_number = req.query.employee_phone_number
-    const contact_phone_number = req.query.contact_phone_number;
-    const direction = req.query.direction;
+        const employee_phone_number = req.query.employee_phone_number
+        const contact_phone_number = req.query.contact_phone_number;
+        const direction = req.query.direction;
 
-    console.log(direction);
+        console.log(direction);
 
-    let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
+        let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
 
-    const staff = await killPlusIntegrator.getStaffBySearch(employee_phone_number);
-    console.log('staff');
-    console.log(staff);
+        const staff = await killPlusIntegrator.getStaffBySearch(employee_phone_number);
+        console.log('staff');
+        console.log(staff);
 
-    if (!lead) {
-        console.log(`Лид отсутствует: ${contact_phone_number}`);
-        lead = {
-            id: undefined,
-            assigned: `${staff === undefined ? 1 : staff.staffid }`,
-            source: '7',
-            status: '2',
-            addedfrom: '0',
-            name: 'входящий',
-            phonenumber: contact_phone_number
-        };
+        if (!lead) {
+            console.log(`Лид отсутствует: ${contact_phone_number}`);
+            lead = {
+                id: undefined,
+                assigned: `${staff === undefined ? 1 : staff.staffid}`,
+                source: '7',
+                status: '2',
+                addedfrom: '0',
+                name: 'входящий',
+                phonenumber: contact_phone_number
+            };
 
-        console.log('addLead');
-        await killPlusIntegrator.addLead(lead);
+            console.log('addLead');
+            await killPlusIntegrator.addLead(lead);
 
-        lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
+            lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
 
-    }
+        }
 
-    const description =  `${direction === 'in' ? '%D0%92%D1%85%D0%BE%D0%B4%D1%8F%D1%89%D0%B8%D0%B9%20%D0%B7%D0%B2%D0%BE%D0%BD%D0%BE%D0%BA' : '%D0%98%D1%81%D1%85%D0%BE%D0%B4%D1%8F%D1%89%D0%B8%D0%B9%20%D0%B7%D0%B2%D0%BE%D0%BD%D0%BE%D0%BA'}:%20${req.query.file_link}`;
-    console.log(description);
-    const url = `https://hr.killercrm.ru/mgerasim_megapbx/Events/add_note?lead=${lead.id}&staff=${staff === undefined ? 1 : staff.staffid}&description=${description}`;
-    await axios.get<any>(url);
+        const description = `${direction === 'in' ? '%D0%92%D1%85%D0%BE%D0%B4%D1%8F%D1%89%D0%B8%D0%B9%20%D0%B7%D0%B2%D0%BE%D0%BD%D0%BE%D0%BA' : '%D0%98%D1%81%D1%85%D0%BE%D0%B4%D1%8F%D1%89%D0%B8%D0%B9%20%D0%B7%D0%B2%D0%BE%D0%BD%D0%BE%D0%BA'}:%20${req.query.file_link}`;
+        console.log(description);
+        const url = `https://hr.killercrm.ru/mgerasim_megapbx/Events/add_note?lead=${lead.id}&staff=${staff === undefined ? 1 : staff.staffid}&description=${description}`;
+        await axios.get<any>(url);
 
-    res.status(200).send({});
+        res.status(200).send({});
     } catch (err) {
         console.error(err.message);
         res.status(500).send();
@@ -178,7 +178,7 @@ app.use('/hrkillplus/notify/answered', async (req: any, res: any) => {
                 ws.send(`{"phone":${contact_phone_number},"lead":${lead.id},"staff":${staff.staffid}}`);
             }
         });
- //       webWs.send(`{"phone":${contact_phone_number},"lead":${lead.id},"staff":${staff.staffid}}`);
+        //       webWs.send(`{"phone":${contact_phone_number},"lead":${lead.id},"staff":${staff.staffid}}`);
         return;
     }
 
@@ -189,44 +189,44 @@ app.use('/hrkillplus/notify/answered', async (req: any, res: any) => {
 app.use('/hrkillplus/events', jsonParser, async (req: any, res: any) => {
     try {
 
-       Logger.Info('events');
+        Logger.Info('events');
         const event = req.body;
 
-       // await mongoDb.collection('events').insert(event);
+        // await mongoDb.collection('events').insert(event);
 
-      console.log(event);
+        console.log(event);
 
-      const lead = await killPlusIntegrator.getLeadBySearch(event.numa);
+        const lead = await killPlusIntegrator.getLeadBySearch(event.numa);
 
-      if (!lead) {
-          console.log(`Лид отсутствует: ${event.numa}`);
+        if (!lead) {
+            console.log(`Лид отсутствует: ${event.numa}`);
 
-      } else {
-        console.log(`Лид найден: ${event.numa}`);
-
-        await killPlusIntegrator.updateLastContactLead(lead.id);
-
-        if (lead.assigned) {
-            console.log(`К лиду ${event.numa} прикреплен сотрудник: ${lead.assigned}`);
-            const staff = await killPlusIntegrator.getStaffById(lead.assigned);
-            if (!staff) {
-                throw new Error(`Не найден сотрудник ${lead.assigned} привязанный к лиду ${event.numa}`);
-            }
-            console.log(`Выполняем переадресацию сотруднику ${staff.phonenumber}`);
-            res.status(200).send({
-                phones: [ `${staff.phonenumber}` ]
-                });
-            return;
         } else {
-            console.log(`К лиду ${event.numa} не прикреплен сотрудник`);
+            console.log(`Лид найден: ${event.numa}`);
+
+            await killPlusIntegrator.updateLastContactLead(lead.id);
+
+            if (lead.assigned) {
+                console.log(`К лиду ${event.numa} прикреплен сотрудник: ${lead.assigned}`);
+                const staff = await killPlusIntegrator.getStaffById(lead.assigned);
+                if (!staff) {
+                    throw new Error(`Не найден сотрудник ${lead.assigned} привязанный к лиду ${event.numa}`);
+                }
+                console.log(`Выполняем переадресацию сотруднику ${staff.phonenumber}`);
+                res.status(200).send({
+                    phones: [`${staff.phonenumber}`]
+                });
+                return;
+            } else {
+                console.log(`К лиду ${event.numa} не прикреплен сотрудник`);
+            }
         }
-      }
 
-      res.status(200).send({
-        returned_code: '2'
-      });
+        res.status(200).send({
+            returned_code: '2'
+        });
 
-      return;
+        return;
     } catch (err) {
         console.error(err.message);
         console.log('Отправляем код возврата 2 по ошибкк');
@@ -238,7 +238,7 @@ app.use('/hrkillplus/events', jsonParser, async (req: any, res: any) => {
 
 );
 
-app.use('/call', async (req: any, res: any) => {
+app.use('/hrkillplus/call', async (req: any, res: any) => {
 
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'origin, content-type, accept');
@@ -273,8 +273,8 @@ app.use('/call', async (req: any, res: any) => {
 
     res.send('call successed');
 
-  //  Logger.Info(JSON.stringify(call));
-  //  webWs.send(`{"phone":${call.phone},"staff":${call.staff}}`);
+    //  Logger.Info(JSON.stringify(call));
+    //  webWs.send(`{"phone":${call.phone},"staff":${call.staff}}`);
 });
 
 app.use('/lead/:phone', (req: any, res: any) => {
