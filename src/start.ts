@@ -1,6 +1,7 @@
 import express, { json } from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
+import moment from 'moment';
 import { Logger } from '@overnightjs/logger';
 import axios from 'axios';
 import * as mongodb from 'mongodb';
@@ -51,6 +52,13 @@ app.use('/hrkillplus/notify/records', async (req: any, res: any) => {
 
         console.log(direction);
 
+        const now = new Date();
+
+        if (moment(req.query.notification_time).add(1, 'hours').toDate() < now ) {
+            res.status(200).send({});
+            return;
+        }
+
         let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
 
         const staff = await killPlusIntegrator.getStaffBySearch(employee_phone_number);
@@ -84,16 +92,23 @@ app.use('/hrkillplus/notify/records', async (req: any, res: any) => {
         res.status(200).send({});
     } catch (err) {
         console.error(err.message);
-        res.status(500).send();
+        res.status(200).send({});
     }
 })
 
 app.use('/hrkillplus/notify/noanswered', async (req: any, res: any) => {
-    Logger.Info('notify/noanswered');
+    try {
+        Logger.Info('notify/noanswered');
     console.log(req.query);
     const employee_phone_number = req.query.employee_phone_number
     const contact_phone_number = req.query.contact_phone_number;
     console.log(`Ответил сотрудник ${employee_phone_number} на номер ${contact_phone_number}`);
+
+    const now = new Date();
+    if (moment(req.query.notification_time).add(1, 'hours').toDate() < now ) {
+        res.status(200).send({});
+        return;
+    }
 
     let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
 
@@ -132,15 +147,27 @@ app.use('/hrkillplus/notify/noanswered', async (req: any, res: any) => {
     await killPlusIntegrator.addTask(task);
 
     res.status(200).send({});
+
+    } catch (error) {
+        res.status(200).send(error.message);
+    }
 });
 
 
 app.use('/hrkillplus/notify/answered', async (req: any, res: any) => {
-    Logger.Info('notify/answered');
+    try {
+        Logger.Info('notify/answered');
     console.log(req.query);
     const employee_phone_number = req.query.employee_phone_number
     const contact_phone_number = req.query.contact_phone_number;
     console.log(`Ответил сотрудник ${employee_phone_number} на номер ${contact_phone_number}`);
+
+
+    const now = new Date();
+    if (moment(req.query.notification_time).add(1, 'hours').toDate() < now ) {
+        res.status(200).send({});
+        return;
+    }
 
     let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
 
@@ -183,6 +210,9 @@ app.use('/hrkillplus/notify/answered', async (req: any, res: any) => {
     }
 
     res.status(200).send({});
+    } catch (error) {
+        res.stauts(200).send({});
+    }
 });
 
 
