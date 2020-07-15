@@ -53,8 +53,9 @@ app.use('/hrkillplus/notify/records', async (req: any, res: any) => {
         console.log(direction);
 
         const now = new Date();
-
-        if (moment(req.query.notification_time).add(1, 'hours').toDate() < now ) {
+        console.log(now);
+        console.log(moment(req.query.notification_time).add(1, 'hours').toDate());
+        if (moment(req.query.notification_time).add(1, 'hours').toDate() < now) {
             res.status(200).send({});
             return;
         }
@@ -99,54 +100,61 @@ app.use('/hrkillplus/notify/records', async (req: any, res: any) => {
 app.use('/hrkillplus/notify/noanswered', async (req: any, res: any) => {
     try {
         Logger.Info('notify/noanswered');
-    console.log(req.query);
-    const employee_phone_number = req.query.employee_phone_number
-    const contact_phone_number = req.query.contact_phone_number;
-    console.log(`Ответил сотрудник ${employee_phone_number} на номер ${contact_phone_number}`);
+        console.log(req.query);
+        const employee_phone_number = req.query.employee_phone_number
+        const contact_phone_number = req.query.contact_phone_number;
+        console.log(`Ответил сотрудник ${employee_phone_number} на номер ${contact_phone_number}`);
 
-    const now = new Date();
-    if (moment(req.query.notification_time).add(1, 'hours').toDate() < now ) {
-        res.status(200).send({});
-        return;
-    }
+        const now = new Date();
 
-    let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
-
-    const staff: Staff = await killPlusIntegrator.getStaffBySearch(employee_phone_number);
-    console.log('staff');
-    console.log(staff);
-
-    if (!lead) {
-        console.log(`Лид отсутствует: ${contact_phone_number}`);
-        lead = {
-            id: undefined,
-            assigned: `${staff === undefined ? 1 : staff.staffid}`,
-            source: '7',
-            status: '2',
-            addedfrom: '0',
-            name: 'пропущенный',
-            phonenumber: contact_phone_number
+        console.log(now);
+        console.log(moment(req.query.notification_time).add(1, 'hours').toDate());
+        if (moment(req.query.notification_time).add(1, 'hours').toDate() < now) {
+            res.status(200).send({});
+            return;
         }
 
-        console.log('addLead');
-        await killPlusIntegrator.addLead(lead);
-    } else {
-        await killPlusIntegrator.updateLastContactLead(lead.id);
-    };
+        let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
 
-    const date = new Date();
+        const staff: Staff = await killPlusIntegrator.getStaffBySearch(employee_phone_number);
+        console.log('staff');
+        console.log(staff);
 
-    const task: Task = {
-        id: 0,
-        name: `Пропущенный звонок от номера: ${lead.phonenumber}`,
-        description: `Пропущенный звонок от номера: ${lead.phonenumber}`,
-        startdate: `${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`,
-        duedate: `${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`
-    };
+        if (!lead) {
+            console.log(`Лид отсутствует: ${contact_phone_number}`);
+            lead = {
+                id: undefined,
+                assigned: `${staff === undefined ? 1 : staff.staffid}`,
+                source: '7',
+                status: '2',
+                addedfrom: '0',
+                name: 'пропущенный',
+                phonenumber: contact_phone_number
+            }
 
-    await killPlusIntegrator.addTask(task);
+            console.log('addLead');
+            await killPlusIntegrator.addLead(lead);
+        } else {
+            await killPlusIntegrator.updateLastContactLead(lead.id);
+        };
 
-    res.status(200).send({});
+        const date = new Date();
+
+        const task: Task = {
+            id: 0,
+            name: `Пропущенный звонок от номера: ${lead.phonenumber}`,
+            description: `Пропущенный звонок от номера: ${lead.phonenumber}`,
+            startdate: `${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`,
+            duedate: `${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`
+        };
+
+        const res_task = await killPlusIntegrator.addTask(task);
+
+        console.log(res_task);
+
+        //await killPlusIntegrator.
+
+        res.status(200).send({});
 
     } catch (error) {
         res.status(200).send(error.message);
@@ -157,59 +165,61 @@ app.use('/hrkillplus/notify/noanswered', async (req: any, res: any) => {
 app.use('/hrkillplus/notify/answered', async (req: any, res: any) => {
     try {
         Logger.Info('notify/answered');
-    console.log(req.query);
-    const employee_phone_number = req.query.employee_phone_number
-    const contact_phone_number = req.query.contact_phone_number;
-    console.log(`Ответил сотрудник ${employee_phone_number} на номер ${contact_phone_number}`);
+        console.log(req.query);
+        const employee_phone_number = req.query.employee_phone_number
+        const contact_phone_number = req.query.contact_phone_number;
+        console.log(`Ответил сотрудник ${employee_phone_number} на номер ${contact_phone_number}`);
 
 
-    const now = new Date();
-    if (moment(req.query.notification_time).add(1, 'hours').toDate() < now ) {
+        const now = new Date();
+        console.log(now);
+        console.log(moment(req.query.notification_time).add(1, 'hours').toDate());
+        if (moment(req.query.notification_time).add(1, 'hours').toDate() < now) {
+            res.status(200).send({});
+            return;
+        }
+
+        let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
+
+        const staff: Staff = await killPlusIntegrator.getStaffBySearch(employee_phone_number);
+        console.log('staff');
+        console.log(staff);
+
+        if (!lead) {
+            console.log(`Лид отсутствует: ${contact_phone_number}`);
+            lead = {
+                id: undefined,
+                assigned: `${staff === undefined ? 1 : staff.staffid}`,
+                source: '7',
+                status: '2',
+                addedfrom: `${staff === undefined ? 0 : staff.staffid}`,
+                name: 'входящий',
+                phonenumber: contact_phone_number
+            };
+
+            console.log('addLead');
+            await killPlusIntegrator.addLead(lead);
+
+            lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
+            console.log(lead);
+
+        }
+
+        if (staff) {
+
+            await killPlusIntegrator.updateAddedFrom(lead.id, staff.staffid);
+
+            console.log(`Всплытие карточки ${staff.staffid}`);
+            wsClients.forEach(ws => {
+                if (ws) {
+                    ws.send(`{"phone":${contact_phone_number},"lead":${lead.id},"staff":${staff.staffid}}`);
+                }
+            });
+            //       webWs.send(`{"phone":${contact_phone_number},"lead":${lead.id},"staff":${staff.staffid}}`);
+            return;
+        }
+
         res.status(200).send({});
-        return;
-    }
-
-    let lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
-
-    const staff: Staff = await killPlusIntegrator.getStaffBySearch(employee_phone_number);
-    console.log('staff');
-    console.log(staff);
-
-    if (!lead) {
-        console.log(`Лид отсутствует: ${contact_phone_number}`);
-        lead = {
-            id: undefined,
-            assigned: `${staff === undefined ? 1 : staff.staffid}`,
-            source: '7',
-            status: '2',
-            addedfrom: `${staff === undefined ? 0 : staff.staffid}`,
-            name: 'входящий',
-            phonenumber: contact_phone_number
-        };
-
-        console.log('addLead');
-        await killPlusIntegrator.addLead(lead);
-
-        lead = await killPlusIntegrator.getLeadBySearch(contact_phone_number);
-        console.log(lead);
-
-    }
-
-    if (staff) {
-
-        await killPlusIntegrator.updateAddedFrom(lead.id, staff.staffid);
-
-        console.log(`Всплытие карточки ${staff.staffid}`);
-        wsClients.forEach(ws => {
-            if (ws) {
-                ws.send(`{"phone":${contact_phone_number},"lead":${lead.id},"staff":${staff.staffid}}`);
-            }
-        });
-        //       webWs.send(`{"phone":${contact_phone_number},"lead":${lead.id},"staff":${staff.staffid}}`);
-        return;
-    }
-
-    res.status(200).send({});
     } catch (error) {
         res.stauts(200).send({});
     }

@@ -115,6 +115,23 @@ export class KillPlusIntegrator {
         );
     }
 
+
+
+    public async addTaskAssignees(task: Task, staff: Staff): Promise<number> {
+        return new Promise((resolve, reject) => {
+            axios.get<number>(`http://hr.killercrm.ru/mgerasim_megapbx/events/add_task_assignees?task=${task.id}&staff=${staff.staffid}`, {
+                headers: {
+                    authtoken: authToken
+                }
+            }).then((result) => {
+                resolve(result.data);
+            }).catch((err) => {
+                console.error(err.message);
+                resolve(undefined);
+            });
+        });
+    }
+
     public async getStaffBySearch(keySearch: string): Promise<Staff | undefined> {
         return new Promise((resolve, reject) => {
             axios.get<Staff[]>(`http://hr.killercrm.ru/api/staffs/search/${keySearch}`, {
