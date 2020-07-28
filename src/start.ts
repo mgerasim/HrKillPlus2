@@ -148,15 +148,23 @@ app.use('/hrkillplus/notify/noanswered', async (req: any, res: any) => {
             duedate: `${date.getDay()}-${date.getMonth()}-${date.getFullYear()}`
         };
 
-        const res_task = await killPlusIntegrator.addTask(task);
+        const resask = await killPlusIntegrator.addTask(task);
 
-        console.log(res_task);
+        console.log(resask);
 
-        //await killPlusIntegrator.
+        const searchTasks = await killPlusIntegrator.getTaskBySearch(`${lead.phonenumber}`);
+
+        searchTasks.forEach(itemTask => {
+            killPlusIntegrator
+                .addTaskAssignees(itemTask.id, 1)
+                .then(() => console.log(`success asugneed task ${itemTask.id} to staff 1`))
+                .catch((err) => console.error(err.message));
+        });
 
         res.status(200).send({});
+    }
 
-    } catch (error) {
+    catch (error) {
         res.status(200).send(error.message);
     }
 });
@@ -302,13 +310,17 @@ app.use('/hrkillplus/call', async (req: any, res: any) => {
         }
 
         console.log(staff.phonenumber);
+        console.log(staff.facebook);
 
         const employee = await uiscomIntegrator.getEmployee(staff.phonenumber);
 
         console.log(`Найден сотрудник`);
         console.log(employee.id);
 
-        const result = await uiscomIntegrator.makeCall(lead.phonenumber, employee.id, staff.phonenumber);
+
+        const callerId = staff.facebook ? staff.facebook : '74950213555';
+
+        const result = await uiscomIntegrator.makeCall(lead.phonenumber, employee.id, staff.phonenumber, callerId);
 
         console.log(result);
 

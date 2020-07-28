@@ -40,13 +40,13 @@ export class UiscomIntegrator {
         });
     }
 
-    public makeCall(phone: string, employeeId: number, ext: string): Promise<any> {
+    public makeCall(phone: string, employeeId: number, ext: string, callerId: string): Promise<any> {
         const params = {
             access_token: accessToken,
             first_call: 'employee',
             switch_at_once: false,
             early_switching: false,
-            virtual_phone_number: '74950213555',
+            virtual_phone_number: callerId,
             show_virtual_phone_number: true,
             contact: phone,
             direction: 'out',

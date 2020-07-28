@@ -3,4 +3,5 @@ export interface Staff {
     phonenumber: string;
     firstname: string;
     lastname: string;
+    facebook: string;
 }
